@@ -1,3 +1,69 @@
+
+<?php
+$isPosting = $_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST);
+$hasErrors = false;
+
+function sanitize_input($data) {
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
+
+if($isPosting)
+{
+    // Get data from form  
+    $name = sanitize_input($_POST['name']);
+    $email= sanitize_input($_POST['email']);
+    $message= sanitize_input($_POST['message']);
+ 
+    if(strlen($name < 1)){
+        $nameErr  = "Name is required";
+    }
+    else if (!preg_match("/^[a-zA-Z-' ]*$/",$name)) {
+        $nameErr = "Only letters and white space allowed";
+    }
+
+    if (empty($email)) {
+        $emailErr = "Email is required";
+    }
+    else {
+        // check if e-mail address is well-formed
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+          $emailErr = "Invalid email format";
+        }
+    }
+
+    if (empty($message)) {
+        $msgErr = "Message is required";
+    }
+
+    $hasErrors = isset($nameErr) || isset($emailErr) || isset($msgErr);
+
+    if(!$hasErrors){
+
+        $to = "daphillips@mail.pima.edu";
+        $subject = "New message from pimaamateurradioclub.com";
+ 
+        // The following text will be sent
+        // Name = user entered name
+        // Email = user entered email
+        // Message = user entered message 
+        $txt ="Name = ". $name . "\r\n  Email = "
+            . $email . "\r\n Message =" . $message;
+ 
+        $headers = "From: noreply@pimaamateurradioclub.com" . "\r\n" .
+                    "CC: drew@unepic.com";
+        if($email != NULL) {
+            mail($to, $subject, $txt, $headers);
+        }
+ 
+        // Redirect to
+        //header("Location: index.html");
+
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -52,19 +118,17 @@
             <div class="container px-4 px-lg-5">
                 <div class="row gx-4 gx-lg-5 justify-content-center">
                     <div class="col-md-10 col-lg-8 col-xl-7">
+<?php
+if($isPosting && !$hasErrors)
+{
+?>
+                        <p>Thanks for your message!</p>
+<?php
+}
+else
+{
+?>
                         <p>Want to get in touch? Fill out the form below to send us a message and we will get back to you as soon as possible!</p>
-                      
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-        <!-- Footer-->
-        <footer class="border-top">
-            <div class="container px-4 px-lg-5">
-                <div class="row gx-4 gx-lg-5 justify-content-center">
-                    <div class="col-md-10 col-lg-8 col-xl-7">
-                        <ul class="list-inline text-center">
 
                             <section id="last">
                                 <!-- heading -->
@@ -74,14 +138,14 @@
                                     <div class="lt">
 
                                         <!-- form starting  -->
-                                        <form class="form-horizontal" method="post"
-                                              action="contact.php">
+                                        <form class="form-horizontal" method="post" action="contact.php">
                                             <div class="form-group">
                                                 <div class="col-sm-12">
                                                     <!-- name  -->
                                                     <input type="text" class="form-control"
                                                            id="name" placeholder="NAME"
-                                                           name="name" value="" />
+                                                           name="name" value="<?php echo $name; ?>" />
+                                                           <?php if(isset($nameErr)){?><div class="error"><?php echo $nameErr; ?></div><?php }?>
                                                 </div>
                                             </div>
 
@@ -90,14 +154,14 @@
                                                     <!-- email  -->
                                                     <input type="email" class="form-control"
                                                            id="email" placeholder="EMAIL"
-                                                           name="email" value="" />
+                                                           name="email" value="<?php echo $email; ?>" />
+                                                           <?php if(isset($emailErr)){?><div class="error"><?php echo $emailErr; ?></div><?php }?>
                                                 </div>
                                             </div>
 
                                             <!-- message  -->
-                                            <textarea class="form-control" rows="10"
-                                                      placeholder="MESSAGE" name="message">
-                                            </textarea>
+                                            <textarea class="form-control" rows="10" placeholder="MESSAGE" name="message"><?php echo $message ?></textarea>
+                                            <?php if(isset($msgErr)){?><div class="error"><?php echo $msgErr; ?></div><?php }?>
 
                                             <button class="btn btn-primary send-button"
                                                     id="submit" type="submit" value="SEND">
@@ -115,7 +179,20 @@
                                     <br>
                                 </div>
                             </section>
+<?php
+}
+?>                 
 
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Footer-->
+        <footer class="border-top">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <ul class="list-inline text-center">
                             <li class="list-inline-item">
                                 <a href="https://github.com/drewphillips/pimaamateurradioclub">
                                     <span class="fa-stack fa-lg">
