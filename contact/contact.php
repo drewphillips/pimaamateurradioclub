@@ -42,7 +42,7 @@ if($isPosting)
 
     if(!$hasErrors){
 
-        $to = "daphillips@mail.pima.edu";
+        $to = "something"@mail.something.edu";
         $subject = "New message from pimaamateurradioclub.com";
  
         // The following text will be sent
@@ -52,7 +52,7 @@ if($isPosting)
         $txt ="Name = ". $name . "\r\n  Email = "
             . $email . "\r\n Message =" . $message;
  
-        $headers = "From: noreply@pimaamateurradioclub.com" . "\r\n" .
+        $headers = "From: noreply@something.com" . "\r\n" .
                     "CC: drew@unepic.com";
         if($email != NULL) {
             mail($to, $subject, $txt, $headers);
